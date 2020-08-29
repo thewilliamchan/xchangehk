@@ -1,25 +1,34 @@
 import React from 'react';
-import logo from './logo.svg';
+import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
+import Home from './Home';
+import logo from './logo.png';
+import linkedin from './linkedin.png';
+import github from './github.png';
 import './App.css';
 
-function App() {
+const NotFound = () => {
+  return <h2 className="p-3">404 Not Found</h2>;
+}
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <nav className="navbar navbar-light bg-light header">
+        <Link className="navbar-brand" to="/">
+          <img src={logo} width="30" height="30" className="d-inline-block align-top" alt="logo" />
+          &nbsp;ChangeHK
+        </Link>
+      </nav>
+      <Switch>
+        <Route path="/" exact component={Home} />
+        <Route component={NotFound} />
+      </Switch>
+      <nav className="navbar navbar-light bg-light footer justify-content-center">
+        © 2020 Created by William Chan&nbsp;&nbsp;
+        <a class="navbar-brand" target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/thewilliamchan"><img src={linkedin} height="30" alt="linkedin"/></a>
+        <a class="navbar-brand" target="_blank" rel="noopener noreferrer" href="https://github.com/thewilliamchan"><img src={github} height="30" alt="github"/></a>
+      </nav>
+    </Router>
   );
 }
 
