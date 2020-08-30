@@ -35,3 +35,7 @@ code {
   width: 100%;
   z-index: 1;
 }
+
+.currencyExchangeList {
+  margin-bottom: 100px;
+}

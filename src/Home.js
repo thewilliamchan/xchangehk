@@ -1,4 +1,5 @@
 import React from 'react';
+import Chart from 'chart.js';
 import { json, checkStatus } from './utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsAltH, faMoneyBillAlt, faCalculator } from '@fortawesome/free-solid-svg-icons';
@@ -6,6 +7,7 @@ import { faArrowsAltH, faMoneyBillAlt, faCalculator } from '@fortawesome/free-so
 class CurrencyConverter extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
       baseAmount: 1.00,
       foreignAmount: 0.00,
@@ -17,6 +19,7 @@ class CurrencyConverter extends React.Component {
       convertButton: 'Convert'
     };
 
+    this.chartRef = React.createRef();
     this.handleAmountChange = this.handleAmountChange.bind(this);
     this.handleBaseCurrencyChange = this.handleBaseCurrencyChange.bind(this);
     this.handleBaseCurrencyForListChange = this.handleBaseCurrencyForListChange.bind(this);
@@ -94,6 +97,53 @@ class CurrencyConverter extends React.Component {
         this.setState({ error: error.message });
         console.log(error);
       });
+    this.getHistoricalRates(this.state.baseCurrency, this.state.foreignCurrency);
+  }
+
+  getHistoricalRates = (baseCurrency, foreignCurrency) => {
+    const endDate = new Date().toISOString().split('T')[0];
+    const startDate = new Date((new Date()).getTime() - (30 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
+    fetch(`https://alt-exchange-rate.herokuapp.com/history?start_at=${startDate}&end_at=${endDate}&base=${baseCurrency}&symbols=${foreignCurrency}`)
+      .then(checkStatus)
+      .then(json)
+      .then(data => {
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        console.log(data);
+        const chartLabels = Object.keys(data.rates);
+        const chartData = Object.values(data.rates).map(rate => rate[foreignCurrency]);
+        const chartLabel = `${baseCurrency}/${foreignCurrency}`;
+        this.buildChart(chartLabels, chartData, chartLabel);
+      })
+      .catch(error => console.error(error.message));
+  }
+
+  buildChart = (labels, data, label) => {
+    console.log(this.chartRef);
+    const chartRef = this.chartRef.current.getContext("2d");
+    if (typeof this.chart !== "undefined") {
+      this.chart.destroy();
+    }
+    console.log("buildchart");
+    this.chart = new Chart(chartRef, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: label,
+            data,
+            fill: false,
+            tension: 0,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+      }
+    });
+    console.log("buildchart2");
   }
 
   render() {
@@ -102,7 +152,7 @@ class CurrencyConverter extends React.Component {
     return (
       <div className="container my-4">
         <h3 className="pageTop">Currency Converter <FontAwesomeIcon icon={faCalculator} /></h3>
-        <div className="form-row">
+        <div className="form-row mt-4">
           <div className="form-group col-md-3">
             <label for="inputCity">Amount</label>
             <input type="text" className="form-control" id="inputAmount" value={baseAmount} onChange={this.handleAmountChange}></input>
@@ -203,8 +253,10 @@ class CurrencyConverter extends React.Component {
           }
         })()}
         <hr className="my-5" />
-        <h3 className="my-5">Exchange Rate List <FontAwesomeIcon icon={faMoneyBillAlt} /></h3>
-        <div className="form-row mt-4">
+        <canvas ref={this.charfRef} />
+        <hr className="my-5" />
+        <h3 className="my-2">Exchange Rate List <FontAwesomeIcon icon={faMoneyBillAlt} /></h3>
+        <div className="form-row my-4">
           <div className="col-md-3"></div>
           <label for="inputBaseCurrencyForList" className="col-md-3 col-form-label">Base 1 $</label>
           <div className="col-md-3">
@@ -260,7 +312,7 @@ class CurrencyConverter extends React.Component {
           if (foreignCurrencyList) {
             let foreignCurrencyListElements = foreignCurrencyList.filter(currency => currency[0] !== baseCurrencyForList).map(currency => <div className="form-row"><div className="col-md-3"></div><div className="col-md-3 text-left">{currency[0]}</div><div className="col-md-3 text-right">{Math.round((currency[1] + Number.EPSILON) * 10000) / 10000}</div><div className="col-md-3"></div></div>);
             return (
-              <div className="currencyExchangeList my-4 h4">
+              <div className="currencyExchangeList h4">
                 {foreignCurrencyListElements}
               </div>
             );
