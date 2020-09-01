@@ -253,7 +253,7 @@ class CurrencyConverter extends React.Component {
           }
         })()}
         <hr className="my-5" />
-        <canvas ref={this.charfRef} />
+        <canvas ref={this.chartRef} />
         <hr className="my-5" />
         <h3 className="my-2">Exchange Rate List <FontAwesomeIcon icon={faMoneyBillAlt} /></h3>
         <div className="form-row my-4">
