@@ -110,7 +110,6 @@ class CurrencyConverter extends React.Component {
         if (data.error) {
           throw new Error(data.error);
         }
-        console.log(data);
         const chartLabels = Object.keys(data.rates);
         const chartData = Object.values(data.rates).map(rate => rate[foreignCurrency]);
         const chartLabel = `${baseCurrency}/${foreignCurrency}`;
@@ -120,12 +119,10 @@ class CurrencyConverter extends React.Component {
   }
 
   buildChart = (labels, data, label) => {
-    console.log(this.chartRef);
     const chartRef = this.chartRef.current.getContext("2d");
     if (typeof this.chart !== "undefined") {
       this.chart.destroy();
     }
-    console.log("buildchart");
     this.chart = new Chart(chartRef, {
       type: 'line',
       data: {
@@ -143,7 +140,6 @@ class CurrencyConverter extends React.Component {
         responsive: true,
       }
     });
-    console.log("buildchart2");
   }
 
   render() {
@@ -252,8 +248,20 @@ class CurrencyConverter extends React.Component {
             );
           }
         })()}
-        <hr className="my-5" />
-        <canvas ref={this.chartRef} />
+        {(() => {
+          if (error) {
+            return error;
+          }
+          if (foreignAmount) {
+            return (
+              <canvas className="my-3" ref={this.chartRef} />
+            );
+          } else {
+            return (
+              <canvas className="my-3 d-none" ref={this.chartRef} />
+            )
+          }
+        })()}
         <hr className="my-5" />
         <h3 className="my-2">Exchange Rate List <FontAwesomeIcon icon={faMoneyBillAlt} /></h3>
         <div className="form-row my-4">
