@@ -254,13 +254,13 @@ class CurrencyConverter extends React.Component {
           }
           if (foreignAmount) {
             return (
-              <div>
+              <div className="row">
                 <canvas className="my-3" ref={this.chartRef} />
               </div>
             );
           } else {
             return (
-              <div>
+              <div className="row">
                 <canvas className="my-3 d-none" ref={this.chartRef} />
               </div>
             )
